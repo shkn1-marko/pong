@@ -8,6 +8,6 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
-add_executable(Pong main.cpp)
+add_executable(PongClient client/main.cpp)
 
-target_link_libraries(Pong PRIVATE glfw glad::glad glm::glm)
+target_link_libraries(PongClient PRIVATE glfw glad::glad glm::glm)
