@@ -11,3 +11,5 @@ find_package(glm CONFIG REQUIRED)
 add_executable(PongClient client/main.cpp)
 
 target_link_libraries(PongClient PRIVATE glfw glad::glad glm::glm)
+
+target_compile_definitions(PongClient PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
