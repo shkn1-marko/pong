@@ -50,6 +50,17 @@ GLFWwindow* createWindow()
     return window;
 }
 
+// Time
+
+float getDeltaTime()
+{
+    static float lastFrame = 0.0f;
+    float currentFrame = (float)glfwGetTime();
+    float dt = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+    return dt;
+}
+
 // Input
 
 void processInput(GLFWwindow* window)
