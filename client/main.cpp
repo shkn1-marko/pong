@@ -23,6 +23,7 @@ GLFWwindow* createWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Pong", nullptr, nullptr);
     if (!window)
@@ -31,6 +32,11 @@ GLFWwindow* createWindow()
         glfwTerminate();
         return nullptr;
     }
+
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    int xPos = (mode->width - WINDOW_WIDTH) / 2;
+    int yPos = (mode->height - WINDOW_HEIGHT) / 2;
+    glfwSetWindowPos(window, xPos, yPos);
 
     glfwMakeContextCurrent(window);
 
