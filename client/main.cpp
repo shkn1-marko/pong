@@ -12,6 +12,8 @@
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
+const int WINNING_SCORE = 3;
+
 // Window / GL setup
 
 GLFWwindow* createWindow()
@@ -73,6 +75,14 @@ bool checkCollision(const glm::vec2& posA, const glm::vec2& sizeA,
     return overlapX && overlapY;
 }
 
+// Reset
+
+void resetBall(Ball& ball)
+{
+    ball.pos = glm::vec2(WINDOW_WIDTH / 2.0F - ball.size.x / 2.0f, WINDOW_HEIGHT / 2.0f - ball.size.y / 2.0f);
+    ball.velocity = glm::vec2(200.0f, 150.0f);
+}
+
 // Input
 
 void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
@@ -93,8 +103,10 @@ void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
 
 // Update
 
-void updateGame(Ball& ball, Paddle& left, Paddle& right, float dt)
+void updateGame(Ball& ball, Paddle& left, Paddle& right, float dt, int& leftScore, int& rightScore, bool& gameOver)
 {
+    if (gameOver) return;
+
     ball.update(dt, 0.0f, (float)WINDOW_HEIGHT);
 
     if (checkCollision(ball.pos, ball.size, left.pos, left.size))
@@ -104,6 +116,19 @@ void updateGame(Ball& ball, Paddle& left, Paddle& right, float dt)
     if (checkCollision(ball.pos, ball.size, right.pos, right.size))
     {
         ball.velocity.x = -ball.velocity.x;
+    }
+
+    if (ball.pos.x < 0.0f)
+    {
+        rightScore++;
+        if (rightScore >= WINNING_SCORE) gameOver = true;
+        else resetBall(ball);
+    }
+    if (ball.pos.x + ball.size.x > (float)WINDOW_WIDTH)
+    {
+        leftScore++;
+        if (leftScore >= WINNING_SCORE) gameOver = true;
+        else resetBall(ball);
     }
 }
 
@@ -153,13 +178,18 @@ int main()
         glm::vec2(200.0f, 150.0f)
     };
 
+    int leftScore = 0;
+    int rightScore = 0;
+
+    bool gameOver = false;
+
     // Setup - End
 
     while (!glfwWindowShouldClose(window))
     {
         float dt = getDeltaTime();
         processInput(window, leftPaddle, rightPaddle, dt);
-        updateGame(ball, leftPaddle, rightPaddle, dt);
+        updateGame(ball, leftPaddle, rightPaddle, dt, leftScore, rightScore, gameOver);
         render(renderer, leftPaddle, rightPaddle, ball);
 
         glfwSwapBuffers(window);
