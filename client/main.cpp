@@ -7,6 +7,7 @@
 #include "shader.hpp"
 #include "renderer.hpp"
 #include "paddle.hpp"
+#include "ball.hpp"
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
@@ -80,15 +81,23 @@ void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
         right.moveDown(dt, (float)WINDOW_HEIGHT);
 }
 
+// Update
+
+void updateGame(Ball& ball, float dt)
+{
+    ball.update(dt);
+}
+
 // Rendering
 
-void render(QuadRenderer& renderer, Paddle& left, Paddle& right)
+void render(QuadRenderer& renderer, Paddle& left, Paddle& right, Ball& ball)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     renderer.draw(left.pos, left.size, glm::vec3(1.0f, 1.0f, 1.0f));
     renderer.draw(right.pos, right.size, glm::vec3(1.0f, 1.0f, 1.0f));
+    renderer.draw(ball.pos, ball.size, glm::vec3(1.0f, 1.0f, 1.0f));
 }
 
 // Entry point
@@ -118,13 +127,21 @@ int main()
         glm::vec2(20.0f, 100.0f),
         300.0f
     };
+    Ball ball
+    {
+        glm::vec2(WINDOW_WIDTH / 2.0f - 10.0f, WINDOW_HEIGHT / 2.0f - 10.0f),
+        glm::vec2(20.0f, 20.0f),
+        glm::vec2(200.0f, 150.0f)
+    };
 
     // Setup - End
 
     while (!glfwWindowShouldClose(window))
     {
-        processInput(window, leftPaddle, rightPaddle, getDeltaTime());
-        render(renderer, leftPaddle, rightPaddle);
+        float dt = getDeltaTime();
+        processInput(window, leftPaddle, rightPaddle, dt);
+        updateGame(ball, dt);
+        render(renderer, leftPaddle, rightPaddle, ball);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
