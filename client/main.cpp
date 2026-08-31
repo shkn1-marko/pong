@@ -63,6 +63,16 @@ float getDeltaTime()
     return dt;
 }
 
+// Collision
+
+bool checkCollision(const glm::vec2& posA, const glm::vec2& sizeA,
+                    const glm::vec2& posB, const glm::vec2& sizeB)
+{
+    bool overlapX = posA.x < posB.x + sizeB.x && posA.x + sizeA.x > posB.x;
+    bool overlapY = posA.y < posB.y + sizeB.y && posA.y + sizeA.y > posB.y;
+    return overlapX && overlapY;
+}
+
 // Input
 
 void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
@@ -83,9 +93,18 @@ void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
 
 // Update
 
-void updateGame(Ball& ball, float dt)
+void updateGame(Ball& ball, Paddle& left, Paddle& right, float dt)
 {
-    ball.update(dt);
+    ball.update(dt, 0.0f, (float)WINDOW_HEIGHT);
+
+    if (checkCollision(ball.pos, ball.size, left.pos, left.size))
+    {
+        ball.velocity.x = -ball.velocity.x;
+    }
+    if (checkCollision(ball.pos, ball.size, right.pos, right.size))
+    {
+        ball.velocity.x = -ball.velocity.x;
+    }
 }
 
 // Rendering
@@ -140,7 +159,7 @@ int main()
     {
         float dt = getDeltaTime();
         processInput(window, leftPaddle, rightPaddle, dt);
-        updateGame(ball, dt);
+        updateGame(ball, leftPaddle, rightPaddle, dt);
         render(renderer, leftPaddle, rightPaddle, ball);
 
         glfwSwapBuffers(window);
