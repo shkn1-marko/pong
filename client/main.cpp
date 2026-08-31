@@ -136,6 +136,21 @@ void drawScore(QuadRenderer& renderer, int leftScore, int rightScore)
     drawDigit(renderer, rightScore, glm::vec2(rightX, y), scale, glm::vec3(1.0f, 1.0f, 1.0f));
 }
 
+// Net
+
+void drawNet(QuadRenderer& renderer)
+{
+    float segmentHeight = 15.0f;
+    float gap = 10.0f;
+    float x = WINDOW_WIDTH / 2.0f - 2.0f;
+    float width = 4.0f;
+
+    for (float y = 0.0f; y < WINDOW_HEIGHT; y += segmentHeight + gap)
+    {
+        renderer.draw(glm::vec2(x, y), glm::vec2(width, segmentHeight), glm::vec3(1.0f, 1.0f, 1.0f));
+    }
+}
+
 // Input
 
 void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
@@ -191,6 +206,8 @@ void render(QuadRenderer& renderer, Paddle& left, Paddle& right, Ball& ball, int
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    drawNet(renderer);
 
     renderer.draw(left.pos, left.size, glm::vec3(1.0f, 1.0f, 1.0f));
     renderer.draw(right.pos, right.size, glm::vec3(1.0f, 1.0f, 1.0f));
