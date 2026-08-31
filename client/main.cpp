@@ -83,6 +83,59 @@ void resetBall(Ball& ball)
     ball.velocity = glm::vec2(200.0f, 150.0f);
 }
 
+// Score display
+
+bool DIGIT_SEGMENTS[4][7] =
+{
+    { true,  true,  true, false, true,  true,  true  },
+    { false, false, true, false, false, true,  false },
+    { true,  false, true, true,  true,  false, true  },
+    { true,  false, true, true,  false, true,  true  }
+};
+
+void drawDigit(QuadRenderer& renderer, int digit, glm::vec2 pos, float scale, glm::vec3 color)
+{
+    float thickness = scale * 0.2f;
+    float w = scale;
+    float h = scale * 1.6f;
+    float halfH = h / 2.0f;
+
+    bool* segments = DIGIT_SEGMENTS[digit];
+
+    if (segments[0])
+        renderer.draw(pos + glm::vec2(0.0f, 0.0f), glm::vec2(w, thickness), color);
+
+    if (segments[1])
+        renderer.draw(pos + glm::vec2(0.0f, 0.0f), glm::vec2(thickness, halfH), color);
+
+    if (segments[2])
+        renderer.draw(pos + glm::vec2(w - thickness, 0.0f), glm::vec2(thickness, halfH), color);
+
+    if (segments[3])
+        renderer.draw(pos + glm::vec2(0.0f, halfH - thickness / 2.0f), glm::vec2(w, thickness), color);
+
+    if (segments[4])
+        renderer.draw(pos + glm::vec2(0.0f, halfH), glm::vec2(thickness, halfH), color);
+
+    if (segments[5])
+        renderer.draw(pos + glm::vec2(w - thickness, halfH), glm::vec2(thickness, halfH), color);
+
+    if (segments[6])
+        renderer.draw(pos + glm::vec2(0.0f, h - thickness), glm::vec2(w, thickness), color);
+}
+
+void drawScore(QuadRenderer& renderer, int leftScore, int rightScore)
+{
+    float scale = 20.0f;
+    float y = 60.0f;
+
+    float leftX = WINDOW_WIDTH / 2.0f - 120.0f;
+    float rightX = WINDOW_WIDTH / 2.0f + 100.0f;
+
+    drawDigit(renderer, leftScore, glm::vec2(leftX, y), scale, glm::vec3(1.0f, 1.0f, 1.0f));
+    drawDigit(renderer, rightScore, glm::vec2(rightX, y), scale, glm::vec3(1.0f, 1.0f, 1.0f));
+}
+
 // Input
 
 void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
@@ -134,7 +187,7 @@ void updateGame(Ball& ball, Paddle& left, Paddle& right, float dt, int& leftScor
 
 // Rendering
 
-void render(QuadRenderer& renderer, Paddle& left, Paddle& right, Ball& ball)
+void render(QuadRenderer& renderer, Paddle& left, Paddle& right, Ball& ball, int leftScore, int rightScore)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -142,6 +195,8 @@ void render(QuadRenderer& renderer, Paddle& left, Paddle& right, Ball& ball)
     renderer.draw(left.pos, left.size, glm::vec3(1.0f, 1.0f, 1.0f));
     renderer.draw(right.pos, right.size, glm::vec3(1.0f, 1.0f, 1.0f));
     renderer.draw(ball.pos, ball.size, glm::vec3(1.0f, 1.0f, 1.0f));
+
+    drawScore(renderer, leftScore, rightScore);
 }
 
 // Entry point
@@ -190,7 +245,7 @@ int main()
         float dt = getDeltaTime();
         processInput(window, leftPaddle, rightPaddle, dt);
         updateGame(ball, leftPaddle, rightPaddle, dt, leftScore, rightScore, gameOver);
-        render(renderer, leftPaddle, rightPaddle, ball);
+        render(renderer, leftPaddle, rightPaddle, ball, leftScore, rightScore);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
