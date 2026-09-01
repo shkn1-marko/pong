@@ -79,7 +79,7 @@ bool checkCollision(const glm::vec2& posA, const glm::vec2& sizeA,
 
 void resetBall(Ball& ball)
 {
-    ball.pos = glm::vec2(WINDOW_WIDTH / 2.0F - ball.size.x / 2.0f, WINDOW_HEIGHT / 2.0f - ball.size.y / 2.0f);
+    ball.pos = glm::vec2(WINDOW_WIDTH / 2.0f - ball.size.x / 2.0f, WINDOW_HEIGHT / 2.0f - ball.size.y / 2.0f);
     ball.velocity = glm::vec2(200.0f, 150.0f);
 }
 
@@ -267,4 +267,7 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glfwTerminate();
+    return 0;
 }
