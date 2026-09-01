@@ -6,13 +6,10 @@
 
 #include "shader.hpp"
 #include "renderer.hpp"
-#include "paddle.hpp"
-#include "ball.hpp"
+#include "game.hpp"
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
-
-const int WINNING_SCORE = 3;
 
 // Window / GL setup
 
@@ -65,157 +62,6 @@ float getDeltaTime()
     return dt;
 }
 
-// Collision
-
-bool checkCollision(const glm::vec2& posA, const glm::vec2& sizeA,
-                    const glm::vec2& posB, const glm::vec2& sizeB)
-{
-    bool overlapX = posA.x < posB.x + sizeB.x && posA.x + sizeA.x > posB.x;
-    bool overlapY = posA.y < posB.y + sizeB.y && posA.y + sizeA.y > posB.y;
-    return overlapX && overlapY;
-}
-
-// Reset
-
-void resetBall(Ball& ball)
-{
-    ball.pos = glm::vec2(WINDOW_WIDTH / 2.0f - ball.size.x / 2.0f, WINDOW_HEIGHT / 2.0f - ball.size.y / 2.0f);
-    ball.velocity = glm::vec2(200.0f, 150.0f);
-}
-
-// Score display
-
-bool DIGIT_SEGMENTS[4][7] =
-{
-    { true,  true,  true, false, true,  true,  true  },
-    { false, false, true, false, false, true,  false },
-    { true,  false, true, true,  true,  false, true  },
-    { true,  false, true, true,  false, true,  true  }
-};
-
-void drawDigit(QuadRenderer& renderer, int digit, glm::vec2 pos, float scale, glm::vec3 color)
-{
-    float thickness = scale * 0.2f;
-    float w = scale;
-    float h = scale * 1.6f;
-    float halfH = h / 2.0f;
-
-    bool* segments = DIGIT_SEGMENTS[digit];
-
-    if (segments[0])
-        renderer.draw(pos + glm::vec2(0.0f, 0.0f), glm::vec2(w, thickness), color);
-
-    if (segments[1])
-        renderer.draw(pos + glm::vec2(0.0f, 0.0f), glm::vec2(thickness, halfH), color);
-
-    if (segments[2])
-        renderer.draw(pos + glm::vec2(w - thickness, 0.0f), glm::vec2(thickness, halfH), color);
-
-    if (segments[3])
-        renderer.draw(pos + glm::vec2(0.0f, halfH - thickness / 2.0f), glm::vec2(w, thickness), color);
-
-    if (segments[4])
-        renderer.draw(pos + glm::vec2(0.0f, halfH), glm::vec2(thickness, halfH), color);
-
-    if (segments[5])
-        renderer.draw(pos + glm::vec2(w - thickness, halfH), glm::vec2(thickness, halfH), color);
-
-    if (segments[6])
-        renderer.draw(pos + glm::vec2(0.0f, h - thickness), glm::vec2(w, thickness), color);
-}
-
-void drawScore(QuadRenderer& renderer, int leftScore, int rightScore)
-{
-    float scale = 20.0f;
-    float y = 60.0f;
-
-    float leftX = WINDOW_WIDTH / 2.0f - 120.0f;
-    float rightX = WINDOW_WIDTH / 2.0f + 100.0f;
-
-    drawDigit(renderer, leftScore, glm::vec2(leftX, y), scale, glm::vec3(1.0f, 1.0f, 1.0f));
-    drawDigit(renderer, rightScore, glm::vec2(rightX, y), scale, glm::vec3(1.0f, 1.0f, 1.0f));
-}
-
-// Net
-
-void drawNet(QuadRenderer& renderer)
-{
-    float segmentHeight = 15.0f;
-    float gap = 10.0f;
-    float x = WINDOW_WIDTH / 2.0f - 2.0f;
-    float width = 4.0f;
-
-    for (float y = 0.0f; y < WINDOW_HEIGHT; y += segmentHeight + gap)
-    {
-        renderer.draw(glm::vec2(x, y), glm::vec2(width, segmentHeight), glm::vec3(1.0f, 1.0f, 1.0f));
-    }
-}
-
-// Input
-
-void processInput(GLFWwindow* window, Paddle& left, Paddle& right, float dt)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        left.moveUp(dt, 0.0f);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        left.moveDown(dt, (float)WINDOW_HEIGHT);
-
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-        right.moveUp(dt, 0.0f);
-    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-        right.moveDown(dt, (float)WINDOW_HEIGHT);
-}
-
-// Update
-
-void updateGame(Ball& ball, Paddle& left, Paddle& right, float dt, int& leftScore, int& rightScore, bool& gameOver)
-{
-    if (gameOver) return;
-
-    ball.update(dt, 0.0f, (float)WINDOW_HEIGHT);
-
-    if (checkCollision(ball.pos, ball.size, left.pos, left.size))
-    {
-        ball.velocity.x = -ball.velocity.x;
-    }
-    if (checkCollision(ball.pos, ball.size, right.pos, right.size))
-    {
-        ball.velocity.x = -ball.velocity.x;
-    }
-
-    if (ball.pos.x < 0.0f)
-    {
-        rightScore++;
-        if (rightScore >= WINNING_SCORE) gameOver = true;
-        else resetBall(ball);
-    }
-    if (ball.pos.x + ball.size.x > (float)WINDOW_WIDTH)
-    {
-        leftScore++;
-        if (leftScore >= WINNING_SCORE) gameOver = true;
-        else resetBall(ball);
-    }
-}
-
-// Rendering
-
-void render(QuadRenderer& renderer, Paddle& left, Paddle& right, Ball& ball, int leftScore, int rightScore)
-{
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    drawNet(renderer);
-
-    renderer.draw(left.pos, left.size, glm::vec3(1.0f, 1.0f, 1.0f));
-    renderer.draw(right.pos, right.size, glm::vec3(1.0f, 1.0f, 1.0f));
-    renderer.draw(ball.pos, ball.size, glm::vec3(1.0f, 1.0f, 1.0f));
-
-    drawScore(renderer, leftScore, rightScore);
-}
-
 // Entry point
 
 int main()
@@ -231,38 +77,16 @@ int main()
     Shader quadShader(vertPath.c_str(), fragPath.c_str());
     QuadRenderer renderer(&quadShader, projection);
 
-    Paddle leftPaddle
-    {
-        glm::vec2(50.0f, 250.0f),
-        glm::vec2(20.0f, 100.0f),
-        300.0f
-    };
-    Paddle rightPaddle
-    {
-        glm::vec2(WINDOW_WIDTH - 70.0f, 250.0f),
-        glm::vec2(20.0f, 100.0f),
-        300.0f
-    };
-    Ball ball
-    {
-        glm::vec2(WINDOW_WIDTH / 2.0f - 10.0f, WINDOW_HEIGHT / 2.0f - 10.0f),
-        glm::vec2(20.0f, 20.0f),
-        glm::vec2(200.0f, 150.0f)
-    };
-
-    int leftScore = 0;
-    int rightScore = 0;
-
-    bool gameOver = false;
+    PongGame game(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Setup - End
 
     while (!glfwWindowShouldClose(window))
     {
         float dt = getDeltaTime();
-        processInput(window, leftPaddle, rightPaddle, dt);
-        updateGame(ball, leftPaddle, rightPaddle, dt, leftScore, rightScore, gameOver);
-        render(renderer, leftPaddle, rightPaddle, ball, leftScore, rightScore);
+        game.processInput(window, dt);
+        game.update(dt);
+        game.render(renderer);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
