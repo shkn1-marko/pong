@@ -92,3 +92,61 @@ void PongGame::render(QuadRenderer& renderer)
 
     drawScore(renderer);
 }
+
+bool PongGame::DIGIT_SEGMENTS[4][7] =
+{
+    {  true,  true,  true,  false,  true,  true,  true  },
+    {  false, false, true,  false,  false, true,  false },
+    {  true,  false, true,  true,   true,  false, true  },
+    {  true,  false, true,  true,   false, true,  true  }
+};
+
+void PongGame::drawDigit(QuadRenderer& renderer, int digit, glm::vec2 pos, float scale, glm::vec3 color)
+{
+    float thickness = scale * 0.2f;
+    float w = scale;
+    float h = scale * 1.6f;
+    float halfH = h / 2.0f;
+
+    bool* segments = DIGIT_SEGMENTS[digit];
+
+    if (segments[0])
+        renderer.draw(pos + glm::vec2(0.0f, 0.0f), glm::vec2(w, thickness), color);
+    if (segments[1])
+        renderer.draw(pos + glm::vec2(0.0f, 0.0f), glm::vec2(thickness, halfH), color);
+    if (segments[2])
+        renderer.draw(pos + glm::vec2(w - thickness, 0.0f), glm::vec2(thickness, halfH), color);
+    if (segments[3])
+        renderer.draw(pos + glm::vec2(0.0f, halfH - thickness / 2.0f), glm::vec2(w, thickness), color);
+    if (segments[4])
+        renderer.draw(pos + glm::vec2(0.0f, halfH), glm::vec2(thickness, halfH), color);
+    if (segments[5])
+        renderer.draw(pos + glm::vec2(w - thickness, halfH), glm::vec2(thickness, halfH), color);
+    if (segments[6])
+        renderer.draw(pos + glm::vec2(0.0f, h - thickness), glm::vec2(w, thickness), color);
+}
+
+void PongGame::drawScore(QuadRenderer& renderer)
+{
+    float scale = 20.0f;
+    float y = 60.0f;
+
+    float leftX = windowWidth / 2.0f - 120.0f;
+    float rightX = windowWidth / 2.0f + 100.0;
+
+    drawDigit(renderer, leftScore, glm::vec2(leftX, y), scale, glm::vec3(1.0f, 1.0f, 1.0f));
+    drawDigit(renderer, rightScore, glm::vec2(rightX, y), scale, glm::vec3(1.0f, 1.0f, 1.0f));
+}
+
+void PongGame::drawNet(QuadRenderer& renderer)
+{
+    float segmentHeight = 15.0f;
+    float gap = 10.0f;
+    float x = windowWidth / 2.0f - 2.0f;
+    float width = 4.0f;
+
+    for (float y = 0.0f; y < windowHeight; y += segmentHeight + gap)
+    {
+        renderer.draw(glm::vec2(x, y), glm::vec2(width, segmentHeight), glm::vec3(1.0f, 1.0f, 1.0f));
+    }
+}

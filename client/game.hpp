@@ -32,6 +32,8 @@ private:
     int rightScore = 0;
     bool gameOver = false;
 
+    static bool DIGIT_SEGMENTS[4][7];
+
     bool checkCollision(const glm::vec2& posA, const glm::vec2& sizeA,
                         const glm::vec2& posB, const glm::vec2& sizeB);
 
