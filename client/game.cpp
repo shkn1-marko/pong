@@ -71,7 +71,7 @@ void PongGame::update(float dt)
         if (rightScore >= winningScore) gameOver = true;
         else resetBall();
     }
-    if (ball.pos.x + ball.size.x > (float)windowHeight)
+    if (ball.pos.x + ball.size.x > (float)windowWidth)
     {
         leftScore++;
         if (leftScore >= winningScore) gameOver = true;
