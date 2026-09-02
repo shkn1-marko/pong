@@ -11,6 +11,8 @@
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
+const float FIXED_DT = 1.0f / 60.0f;
+
 // Window / GL setup
 
 GLFWwindow* createWindow()
@@ -81,13 +83,21 @@ int main()
 
     // Setup - End
 
+    float accumulator = 0.0f;
+
     while (!glfwWindowShouldClose(window))
     {
-        float dt = getDeltaTime();
-        game.processInput(window, dt);
-        game.update(dt);
-        game.render(renderer);
+        float frameTime = getDeltaTime();
+        accumulator += frameTime;
 
+        while (accumulator >= FIXED_DT)
+        {
+            game.processInput(window, FIXED_DT);
+            game.update(FIXED_DT);
+            accumulator -= FIXED_DT;
+        }
+
+        game.render(renderer);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
