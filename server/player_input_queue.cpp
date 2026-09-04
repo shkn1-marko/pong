@@ -5,15 +5,24 @@ void PlayerInputQueue::push(const InputPacket& packet)
     pending.push(packet);
 }
 
-PlayerInput PlayerInputQueue::consume(uint32_t tick)
+void PlayerInputQueue::prune(uint32_t tick)
 {
-    // Discard anything older than the tick we're consuming for
     while (!pending.empty() && pending.front().tick < tick)
     {
         pending.pop();
     }
+}
 
-    // If the front is exactly this tick, use it and remember it
+bool PlayerInputQueue::peek(uint32_t tick)
+{
+    prune(tick);
+    return !pending.empty() && pending.front().tick == tick;
+}
+
+PlayerInput PlayerInputQueue::consume(uint32_t tick)
+{
+    prune(tick);
+
     if (!pending.empty() && pending.front().tick == tick)
     {
         InputPacket packet = pending.front();
@@ -21,7 +30,5 @@ PlayerInput PlayerInputQueue::consume(uint32_t tick)
         lastKnown = PlayerInput{ packet.up, packet.down };
     }
 
-    // Otherwise (nothing arrived for this tick yet),
-    // lastKnown is reused as-is
     return lastKnown;
 }

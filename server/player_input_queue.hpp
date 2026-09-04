@@ -16,8 +16,11 @@ class PlayerInputQueue
 public:
     void push(const InputPacket& packet);
     PlayerInput consume(uint32_t tick);
+    bool peek(uint32_t tick);
 
 private:
     std::queue<InputPacket> pending;
     PlayerInput lastKnown{ false, false };
+
+    void prune(uint32_t tick);
 };
