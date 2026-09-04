@@ -23,6 +23,7 @@ private:
 
     uint32_t currentTick = 0;
     TimePoint tickStartTime = Clock::now();
+    Milliseconds timeout{150};
 
     bool allReady();
     StatePacket buildStatePacket();
