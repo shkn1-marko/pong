@@ -22,6 +22,9 @@ endif()
 if (UNIX)
     add_executable(PongServer
         server/main.cpp
+        server/server.cpp
+        server/tick_manager.cpp
+        server/player_input_queue.cpp
     )
 
     target_include_directories(PongServer PRIVATE shared)
