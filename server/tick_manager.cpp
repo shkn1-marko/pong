@@ -14,6 +14,8 @@ bool TickManager::allReady()
             return false;
         }
     }
+
+    return true;
 }
 
 StatePacket TickManager::buildStatePacket()
