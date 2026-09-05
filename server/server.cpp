@@ -2,8 +2,10 @@
 
 #include <iostream>
 #include <cstring>
+
 #include <unistd.h>
 #include <sys/socket.h>
+#include <poll.h>
 
 PongServer::PongServer(int port) : port(port)
 {
@@ -76,6 +78,43 @@ void PongServer::broadcast(const StatePacket& packet)
         {
             sendto(sockfd, &packet, sizeof(packet), 0,
                    (sockaddr*)&playerAddrs[i].value(), sizeof(sockaddr_in));
+        }
+    }
+}
+
+void PongServer::run()
+{
+    pollfd pfd{};
+    pfd.fd = sockfd;
+    pfd.events = POLLIN;
+
+    while (true)
+    {
+        int result = poll(&pfd, 1, 10);
+
+        if (result > 0 && (pfd.revents & POLLIN))
+        {
+            InputPacket incoming{};
+            sockaddr_in senderAddr{};
+            socklen_t senderLen = sizeof(senderAddr);
+
+            ssize_t bytesReceived = recvfrom(sockfd, &incoming, sizeof(incoming),
+                                             0, (sockaddr*)&senderAddr, &senderLen);
+
+            if (bytesReceived > 0)
+            {
+                std::optional<int> playerId = identifyPlayer(senderAddr);
+                if (playerId.has_value())
+                {
+                    tickManager.submitInput(playerId.value(), incomming);
+                }
+            }
+        }
+
+        std::optional<StatePacket> statePacket = tickManager.tryAdvance(Clock::now());
+        if (statePacket.has_value())
+        {
+            broadcast(statePacket.value());
         }
     }
 }
