@@ -106,7 +106,7 @@ void PongServer::run()
                 std::optional<int> playerId = identifyPlayer(senderAddr);
                 if (playerId.has_value())
                 {
-                    tickManager.submitInput(playerId.value(), incomming);
+                    tickManager.submitInput(playerId.value(), incoming);
                 }
             }
         }
