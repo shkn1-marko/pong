@@ -1,9 +1,15 @@
 #pragma once
 
-#include <cstdint>
+#include <array>
+#include <optional>
+
 #include <netinet/in.h>
 
 #include "protocol.hpp"
+#include "tick_manager.hpp"
+#include "clock.hpp"
+
+const int SERVER_PORT = 7777;
 
 class PongServer
 {
@@ -17,18 +23,11 @@ private:
     int sockfd;
     int port;
 
-    sockaddr_in player1Addr{};
-    sockaddr_in player2Addr{};
-    bool hasPlayer1 = false;
-    bool hasPlayer2 = false;
+    std::array<std::optional<sockaddr_in>, NUM_PLAYERS> playerAddrs;
 
-    bool player1Up = false, player1Down = false;
-    bool player2Up = false, player2Down = false;
-
-    uint32_t currentTick = 0;
+    TickManager TickManager;
 
     bool setupSocket();
-    bool isMatchingAddr(const sockaddr_in& a, const sockaddr_in& b);
-    void handlePacket(const InputPacket& incoming, const sockaddr_in& senderAddr);
-    void broadcastState();
+    std::optional<int> identifyPlayer(const sockaddr_in& senderAddr);
+    void broadcast(const StatePacket& packet);
 };
