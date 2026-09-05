@@ -25,7 +25,7 @@ private:
 
     std::array<std::optional<sockaddr_in>, NUM_PLAYERS> playerAddrs;
 
-    TickManager TickManager;
+    TickManager tickManager;
 
     bool setupSocket();
     std::optional<int> identifyPlayer(const sockaddr_in& senderAddr);
