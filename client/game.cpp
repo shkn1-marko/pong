@@ -38,19 +38,30 @@ void PongGame::resetBall()
     ball.velocity = glm::vec2(200.0f, 150.0f);
 }
 
-void PongGame::processInput(GLFWwindow* window, float dt)
+void PongGame::captureInput(GLFWwindow* window, bool& up, bool& down)
 {
+    up = false;
+    down = false;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+        up = true;
+    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+        down = true;
+}
+
+void PongGame::applyInput(bool p1Up, bool p1Down, bool p2Up, bool p2Down, float dt)
+{
+    if (p1Up)
         leftPaddle.moveUp(dt, 0.0f);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (p1Down)
         leftPaddle.moveDown(dt, (float)windowHeight);
 
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+    if (p2Up)
         rightPaddle.moveUp(dt, 0.0f);
-    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+    if (p2Down)
         rightPaddle.moveDown(dt, (float)windowHeight);
 }
 

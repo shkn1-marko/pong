@@ -13,7 +13,8 @@ class PongGame
 public:
     PongGame(int windowWidth, int windowHeight);
 
-    void processInput(GLFWwindow* window, float dt);
+    void captureInput(GLFWwindow* window, bool& up, bool& down);
+    void applyInput(bool p1Up, bool p1Down, bool p2Up, bool p2Down, float dt);
     void update(float dt);
     void render(QuadRenderer& renderer);
 
