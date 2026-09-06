@@ -57,6 +57,17 @@ std::optional<int> PongServer::identifyPlayer(const sockaddr_in& senderAddr)
         }
     }
 
+    return std::nullopt;
+}
+
+std::optional<int> PongServer::registerPlayer(const sockaddr_in& senderAddr)
+{
+    std::optional<int> existing = identifyPlayer(senderAddr);
+    if (existing.has_value())
+    {
+        return existing;
+    }
+
     for (int i = 0; i < NUM_PLAYERS; i++)
     {
         if (!playerAddrs[i].has_value())

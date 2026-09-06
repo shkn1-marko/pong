@@ -29,5 +29,7 @@ private:
 
     bool setupSocket();
     std::optional<int> identifyPlayer(const sockaddr_in& senderAddr);
+    std::optional<int> registerPlayer(const sockaddr_in& senderAddr);
+    void sendJoinAccept(const sockaddr_in& addr, int playerId);
     void broadcast(const StatePacket& packet);
 };
