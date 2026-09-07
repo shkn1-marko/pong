@@ -114,19 +114,43 @@ void PongServer::run()
 
         if (result > 0 && (pfd.revents & POLLIN))
         {
-            InputPacket incoming{};
+            char buffer[256]{};
             sockaddr_in senderAddr{};
             socklen_t senderLen = sizeof(senderAddr);
 
-            ssize_t bytesReceived = recvfrom(sockfd, &incoming, sizeof(incoming),
-                                             0, (sockaddr*)&senderAddr, &senderLen);
+            ssize_t bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0,
+                                             (sockaddr*)&senderAddr, &senderLen);
 
-            if (bytesReceived > 0)
+            if (bytesReceived >= (ssize_t)sizeof(PacketType))
             {
-                std::optional<int> playerId = identifyPlayer(senderAddr);
-                if (playerId.has_value())
+                PacketType type;
+                std::memcpy(&type, buffer, sizeof(PacketType));
+
+                switch (type)
                 {
-                    tickManager.submitInput(playerId.value(), incoming);
+                    case PacketType::Join:
+                    {
+                        std::optional<int> id = registerPlayer(senderAddr);
+                        if (id.has_value())
+                        {
+                            sendJoinAccept(senderAddr, id.value());
+                        }
+                        break;
+                    }
+                    case PacketType::Input:
+                    {
+                        InputPacket incoming{};
+                        std::memcpy(&incoming, buffer, sizeof(InputPacket));
+
+                        std::optional<int> id = identifyPlayer(senderAddr);
+                        if (id.has_value())
+                        {
+                            tickManager.submitInput(id.value(), incoming);
+                        }
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
         }
