@@ -81,6 +81,15 @@ std::optional<int> PongServer::registerPlayer(const sockaddr_in& senderAddr)
     return std::nullopt;
 }
 
+void PongServer::sendJoinAccept(const sockaddr_in& addr, int playerId)
+{
+    JoinAccept packet{};
+    packet.playerId = playerId;
+
+    sendto(sockfd, &packet, sizeof(packet), 0,
+           (sockaddr*)&addr, sizeof(sockaddr_in));
+}
+
 void PongServer::broadcast(const StatePacket& packet)
 {
     for (int i = 0; i < NUM_PLAYERS; i++)
