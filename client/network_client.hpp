@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-#include <winsock.h>
+#include <winsock2.h>
 #include <WS2tcpip.h>
 
 #include "protocol.hpp"
