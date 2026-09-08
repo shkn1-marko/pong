@@ -12,10 +12,11 @@ if (WIN32)
     add_executable(PongClient
         client/main.cpp
         client/game.cpp
+        client/network_client.cpp
     )
 
     target_include_directories(PongClient PRIVATE shared)
-    target_link_libraries(PongClient PRIVATE glfw glad::glad glm::glm)
+    target_link_libraries(PongClient PRIVATE glfw glad::glad glm::glm ws2_32)
     target_compile_definitions(PongClient PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 endif()
 
