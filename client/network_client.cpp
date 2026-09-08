@@ -79,6 +79,8 @@ bool NetworkClient::join()
             }
         }
     }
+
+    return false;
 }
 
 void NetworkClient::sendInput(uint32_t tick, bool up, bool down)
