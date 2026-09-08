@@ -1,6 +1,40 @@
 #include "network_client.hpp"
 
+#include <iostream>
 #include <cstring>
+
+NetworkClient::NetworkClient(const std::string& serverIp, int serverPort)
+{
+    if (!setupSocket(serverIp, serverPort))
+    {
+        std::cerr << "Failed to initialize network client\n";
+        std::exit(1);
+    }
+}
+
+NetworkClient::~NetworkClient()
+{
+    closesocket(sockfd);
+}
+
+bool NetworkClient::setupSocket(const std::string& serverIp, int serverPort)
+{
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd == INVALID_SOCKET)
+    {
+        std::cerr << "Failed to create socket\n";
+        return false;
+    }
+
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(serverPort);
+    inet_pton(AF_INET, serverIp.c_str(), &serverAddr.sin_addr);
+
+    u_long mode = 1;
+    ioctlsocket(sockfd, FIONBIO, &mode);
+
+    return true;
+}
 
 bool NetworkClient::join()
 {
