@@ -80,3 +80,41 @@ bool NetworkClient::join()
         }
     }
 }
+
+void NetworkClient::sendInput(uint32_t tick, bool up, bool down)
+{
+    InputPacket packet{};
+    packet.tick = tick;
+    packet.up = up;
+    packet.down = down;
+
+    sendto(sockfd, (const char*)&packet, sizeof(packet), 0,
+           (sockaddr*)&serverAddr, sizeof(serverAddr));
+}
+
+std::optional<StatePacket> NetworkClient::receiveState()
+{
+    char buffer[256]{};
+    sockaddr_in fromAddr{};
+    int fromLen = sizeof(fromAddr);
+
+    int bytesReceived = recvfrom(sockfd, buffer, sizeof(buffer), 0,
+                                 (sockaddr*)&fromAddr, &fromLen);
+
+    if (bytesReceived < (int)sizeof(PacketType))
+    {
+        return std::nullopt;
+    }
+
+    PacketType type;
+    memcpy(&type, buffer, sizeof(PacketType));
+
+    if (type == PacketType::State && bytesReceived >= (int)sizeof(StatePacket))
+    {
+        StatePacket packet{};
+        memcpy(&packet, buffer, sizeof(StatePacket));
+        return packet;
+    }
+
+    return std::nullopt;
+}
