@@ -69,7 +69,7 @@ bool NetworkClient::join()
                 PacketType type;
                 memcpy(&type, buffer, sizeof(PacketType));
 
-                if (type == PacketType::Join && bytesReceived >= (int)sizeof(JoinAccept))
+                if (type == PacketType::JoinAccept && bytesReceived >= (int)sizeof(JoinAccept))
                 {
                     JoinAccept accept{};
                     memcpy(&accept, buffer, sizeof(JoinAccept));
